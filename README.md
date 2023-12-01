@@ -1,13 +1,15 @@
 # simple-proxy
 
-Simple reverse proxy to bypass CORS
+A reverse proxy to bypass CORS
 
 ### features:
- - Deployable on many platforms - thanks to nitro
- - header rewrites - read and write protected headers
- - bypass CORS - always allows browser to send requests through it
+
+ - Deployable on many platforms - using `unjs/nitro`
+ - Header rewrites - read and write protected headers
+ - Bypass CORS - always allows browser to send requests through it
 
 ### supported platforms:
- - cloudflare workers
- - AWS lambda
- - nodejs
+
+ - Cloudflare workers (serverless)
+ - AWS lambda (serverless) 
+ - NodeJS

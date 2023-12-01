@@ -1,9 +1,9 @@
-import { getBodyBuffer } from '@/utils/body';
+import { getBodyBuffer } from "@/utils/body";
 import {
   getProxyHeaders,
   getAfterResponseHeaders,
   cleanupHeadersBeforeProxy,
-} from '@/utils/headers';
+} from "@/utils/headers";
 
 export default defineEventHandler(async (event) => {
   // handle cors, if applicable
@@ -16,7 +16,7 @@ export default defineEventHandler(async (event) => {
       event,
       status: 400,
       data: {
-        error: 'destination query parameter invalid',
+        error: "destination query parameter invalid",
       },
     });
 
@@ -27,7 +27,7 @@ export default defineEventHandler(async (event) => {
   cleanupHeadersBeforeProxy(event);
   await proxyRequest(event, destination, {
     fetchOptions: {
-      redirect: 'follow',
+      redirect: "follow",
       headers: getProxyHeaders(event.headers),
       body,
     },
