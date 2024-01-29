@@ -1,9 +1,14 @@
-import { getBodyBuffer } from "@/utils/body";
+import { getBodyBuffer } from '@/utils/body';
 import {
   getProxyHeaders,
   getAfterResponseHeaders,
-  cleanupHeadersBeforeProxy,
-} from "@/utils/headers";
+  getBlacklistedHeaders,
+} from '@/utils/headers';
+import {
+  createTokenIfNeeded,
+  isAllowedToMakeRequest,
+  setTokenHeader,
+} from '@/utils/turnstile';
 
 export default defineEventHandler(async (event) => {
   // handle cors, if applicable
@@ -14,26 +19,44 @@ export default defineEventHandler(async (event) => {
   if (!destination)
     return await sendJson({
       event,
-      status: 400,
+      status: 200,
       data: {
-        error: "destination query parameter invalid",
+        message: `Proxy is working as expected (v${
+          useRuntimeConfig(event).version
+        })`,
+      },
+    });
+
+  if (!(await isAllowedToMakeRequest(event)))
+    return await sendJson({
+      event,
+      status: 401,
+      data: {
+        error: 'Invalid or missing token',
       },
     });
 
   // read body
   const body = await getBodyBuffer(event);
+  const token = await createTokenIfNeeded(event);
 
   // proxy
-  cleanupHeadersBeforeProxy(event);
-  await proxyRequest(event, destination, {
-    fetchOptions: {
-      redirect: "follow",
-      headers: getProxyHeaders(event.headers),
-      body,
-    },
-    onResponse(outputEvent, response) {
-      const headers = getAfterResponseHeaders(response.headers, response.url);
-      setResponseHeaders(outputEvent, headers);
-    },
-  });
+  try {
+    await specificProxyRequest(event, destination, {
+      blacklistedHeaders: getBlacklistedHeaders(),
+      fetchOptions: {
+        redirect: 'follow',
+        headers: getProxyHeaders(event.headers),
+        body,
+      },
+      onResponse(outputEvent, response) {
+        const headers = getAfterResponseHeaders(response.headers, response.url);
+        setResponseHeaders(outputEvent, headers);
+        if (token) setTokenHeader(event, token);
+      },
+    });
+  } catch (e) {
+    console.log('Error fetching', e);
+    throw e;
+  }
 });

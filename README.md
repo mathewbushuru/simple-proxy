@@ -1,15 +1,21 @@
 # simple-proxy
 
-A reverse proxy to bypass CORS
+Simple reverse proxy to bypass CORS, used by [movie-web](https://movie-web.app).
+Read the docs at https://docs.movie-web.app/proxy/introduction
+
+---
 
 ### features:
+ - Deployable on many platforms - thanks to nitro
+ - header rewrites - read and write protected headers
+ - bypass CORS - always allows browser to send requests through it
+ - secure it with turnstile - prevent bots from using your proxy
 
- - Deployable on many platforms - using `unjs/nitro`
- - Header rewrites - read and write protected headers
- - Bypass CORS - always allows browser to send requests through it
+> [!WARNING]
+> Turnstile integration only works properly with cloudflare workers as platform
 
 ### supported platforms:
-
- - Cloudflare workers (serverless)
- - AWS lambda (serverless) 
- - NodeJS
+ - cloudflare workers
+ - AWS lambda
+ - nodejs
+ - netlify edge functions
